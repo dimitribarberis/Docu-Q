@@ -6,7 +6,7 @@ DocuQ is a lightweight GenAI-powered app that lets you upload utility bills (PDF
 - Semantic search with FAISS
 - Local embedding with Sentence-Transformers
 - Local LLM answering (via Ollama or HuggingFace)
-- Streamlit UI for chat-like Q&A
+- TODO: Streamlit UI for chat-like Q&A
 
 ## Quickstart
 1. Clone the repo:
