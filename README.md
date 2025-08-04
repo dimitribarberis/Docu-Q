@@ -25,7 +25,7 @@ streamlit run app.py
 4. Upload a utility bill PDF and ask a question!
 
 ## Model Options
-- Local: [Phi-3](https://ollama.com/library/phi3), [Mistral](https://ollama.com/library/mistral)
+- Local: [Mistral](https://ollama.com/library/mistral)
 - Optional: OpenAI GPT-3.5 (low cost)
 
 ## License
