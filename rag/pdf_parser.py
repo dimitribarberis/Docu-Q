@@ -1,6 +1,7 @@
 #pdfplumber is slightly easier to use than PyMuPDF
 import pdfplumber
-from langchain.text_splitter import CharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 def extract_text_from_pdf(pdf_path):
     """
@@ -23,35 +24,20 @@ def extract_text_from_pdf(pdf_path):
                 })
     return documents
 
-def chunk_text(documents, chunk_size=500, chunk_overlap=50):
-    """
-    Splits each page of text into smaller overlapping chunks to preserve some context.
-
-    Args:
-        pages (List[str]): List of page-wise text content.
-        max_chars (int): Maximum characters per chunk.
-        overlap (int): Number of overlapping characters between chunks.µ
-
-    Returns:
-        List[str]: List of text chunks.
-    """
-    splitter = CharacterTextSplitter(
-        separator="\n\n",
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap
-    )
-
-    all_chunks = []
-
-    for doc in documents:
-        text = doc["text"]
-        metadata = doc["metadata"]
-
-        chunks = splitter.create_documents([text])
-        for chunk in chunks:
-            all_chunks.append({
-                "text": chunk.page_content,
-                "metadata": metadata
+def chunk_documents(pages, filename):
+    chunks = []
+    for i, page_dict in enumerate(pages):
+        page_text = page_dict["text"]
+        page_num = page_dict.get("metadata").get("page",-1)
+        for chunk in RecursiveCharacterTextSplitter(
+            chunk_size=500,  # Adjust size as needed
+            chunk_overlap=100,  # Overlap for better context
+        ).split_text(page_text):
+            chunks.append({
+                "text": chunk,
+                "metadata": {
+                    "filename": filename,
+                    "page": page_num
+                }
             })
-
-    return all_chunks
+    return chunks

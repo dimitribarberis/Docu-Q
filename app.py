@@ -1,6 +1,5 @@
-
 import streamlit as st
-from rag.pdf_parser import extract_text_from_pdf, chunk_text
+from rag.pdf_parser import extract_text_from_pdf, chunk_documents
 from rag.embedder import embed_and_store, load_vectorstore
 from rag.qa_engine import query_legal_doc
 import os
@@ -20,7 +19,7 @@ if uploaded_files:
                 f.write(uploaded_file.getvalue())
 
             pages = extract_text_from_pdf(f"data/uploaded_docs/{uploaded_file.name}")
-            chunks = chunk_text(pages)
+            chunks = chunk_documents(pages, filename=uploaded_file.name)
             all_chunks.extend(chunks)
 
         embed_and_store(all_chunks)
@@ -28,10 +27,32 @@ if uploaded_files:
 
 # --- Question Interface ---
 st.header("2. Ask a question")
-question = st.text_input("What do you want to know?")
+
+templates = {
+    "🔍 Ask a custom question": None,
+    "📑 Summarize this document": "Please summarize the key points in this document.",
+    "🧾 What are the obligations of the tenant?": "List the obligations of the tenant as stated in the document.",
+    "❌ What are the termination conditions?": "Explain the termination conditions mentioned in this document.",
+}
+selected = st.selectbox("Choose a question template", list(templates.keys()))
+if selected == "🔍 Ask a custom question":
+    question = st.text_input("Enter your question")
+else:
+    question = templates[selected]
 
 if question:
     with st.spinner("Thinking..."):
-        answer = query_legal_doc(question)
+        answer, sources = query_legal_doc(question)
+
         st.markdown("### 🤖 Answer")
         st.write(answer)
+
+        st.markdown("### 📚 Sources")
+        for doc in sources:
+            filename = doc.metadata.get("filename", "Unknown file")
+            page = doc.metadata.get("page", "Unknown page")
+            preview = doc.page_content[:300].strip()
+
+            st.markdown(f"**📄 {filename} — Page {page}**")
+            st.code(preview)
+
