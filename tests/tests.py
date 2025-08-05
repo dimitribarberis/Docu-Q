@@ -1,51 +1,30 @@
-from rag.pdf_parser import extract_text_from_pdf
-from rag.embedder import chunk_text, embed_chunks
-from rag.retriever import build_faiss_index, save_index, load_index, retrieve
-from rag.llm_interface import ask_llm
-from rag.prompt_utils import build_prompt
+# test_pipeline.py
+from rag.pdf_parser import extract_text_from_pdf, chunk_text
+from rag.embedder import embed_and_store, load_vectorstore
+from rag.qa_engine import query_legal_doc
 
-"""
-EXTRACTION TEST
-__________________________________________________
-"""
-texts = extract_text_from_pdf("data/uploaded_docs/sample_bill.pdf")
+def full_pipeline_test(pdf_path, test_question):
+    print("🔍 Step 1: Extracting text from PDF...")
+    pages = extract_text_from_pdf(pdf_path)
+    print(f"✅ Extracted {len(pages)} pages.")
 
-"""
-__________________________________________________
-CHUNCKING AND EMBEDDING EXAMPLE
-__________________________________________________
-"""
+    print("📚 Step 2: Chunking document...")
+    chunks = chunk_text(pages)
+    print(f"✅ Created {len(chunks)} chunks.")
 
-chunks = chunk_text(texts, max_chars=300, overlap=30)
+    print("💾 Step 3: Embedding and storing in FAISS...")
+    embed_and_store(chunks)
+    print("✅ Vectorstore saved.")
 
-print(f"Chunk count: {len(chunks)}\n")
-print(f"Example chunk:\n{chunks[0:4]}\n")
+    print("🤖 Step 4: Asking your question...")
+    answer = query_legal_doc(test_question)
+    print("\n🔎 Question:", test_question)
+    print("🧠 Answer:", answer)
 
-embeddings = embed_chunks(chunks)
 
-print(f"Embeddings shape: {embeddings.shape}\n")
+if __name__ == "__main__":
+    # Example usage
+    pdf_path = "data/uploaded_docs/sample_court.pdf"
+    test_question = "What does this document describe?"
 
-"""
-___________________________________________________
-RETRIEVAL TEST
-___________________________________________________
-"""
-index = build_faiss_index(embeddings)
-#save_index(index, chunks)
-
-#index, chunks = load_index()
-#results = retrieve("What is the total amount of the bill?", index, chunks)
-
-"""
-------------------------------------------------
-LLM RESPONSE TEST
-------------------------------------------------
-"""
-question = ("What is the combined amount due from metered and unmetered usage? You can find the actual numbers for usage in kwh and effective rate in section 2 and the unmetered amount in section 3. Therefor you have to find a numerical answer!")
-top_chunks = retrieve(question, index, chunks)
-
-prompt = build_prompt(question, top_chunks)
-answer = ask_llm(prompt)
-
-print("\n💬 Question:", question)
-print("🧠 Answer:", answer)
+    full_pipeline_test(pdf_path, test_question)

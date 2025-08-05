@@ -1,45 +1,30 @@
-from sentence_transformers import SentenceTransformer
-import textwrap
+from langchain.embeddings import OllamaEmbeddings
+from langchain.vectorstores import FAISS
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
-
-def chunk_text(pages, max_chars=500, overlap=50):
+def embed_and_store(chunks, persist_path="vectorstore"):
     """
-    Splits each page of text into smaller overlapping chunks to preserve some context.
-
-    Args:
-        pages (List[str]): List of page-wise text content.
-        max_chars (int): Maximum characters per chunk.
-        overlap (int): Number of overlapping characters between chunks.µ
-
-    Returns:
-        List[str]: List of text chunks.
+    Embeds chunks and stores them in a FAISS vectorstore.
+    - `chunks` = list of dicts with 'text' and 'metadata'
+    - `persist_path` = folder to save FAISS index
     """
+    # Extract plain texts and metadata
+    texts = [chunk['text'] for chunk in chunks]
+    metadatas = [chunk['metadata'] for chunk in chunks]
 
-    chunks = []
+    # Use Ollama embedding model (make sure it's running)
+    embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
-    for page in pages:
-        if not page:
-            continue
-        start = 0
-        while start < len(page):
-            end = min(start + max_chars, len(page))
-            chunk = page[start:end]
-            chunks.append(chunk.strip())
-            start += max_chars - overlap
+    # Create FAISS vector store
+    vectorstore = FAISS.from_texts(texts, embedding=embeddings, metadatas=metadatas)
 
-    return chunks
+    # Save locally
+    vectorstore.save_local(persist_path)
 
-def embed_chunks(chunks):
+    print(f"✅ Vector store saved to '{persist_path}'")
+
+def load_vectorstore(persist_path="vectorstore"):
     """
-    Embeds text chunks using a pre-trained SentenceTransformer model.
-
-    Args:
-        chunks (List[str]): List of text chunks to embed.
-
-    Returns:
-        np.ndarray: Embeddings matrix.
+    Loads a FAISS vectorstore from disk.
     """
-
-    embeddings = model.encode(chunks)
-    return embeddings
+    embeddings = OllamaEmbeddings(model="nomic-embed-text")
+    return FAISS.load_local(persist_path, embeddings, allow_dangerous_deserialization=True)
