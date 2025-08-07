@@ -18,7 +18,7 @@ def full_pipeline_test(pdf_path, test_question):
 
     print("Step 4: Asking your question...")
     answer = query_legal_doc(test_question)
-    print("\n🔎 Question:", test_question)
+    print("\n Question:", test_question)
     print("Answer:", answer)
 
 
