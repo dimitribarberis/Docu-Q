@@ -4,22 +4,22 @@ from rag.embedder import embed_and_store, load_vectorstore
 from rag.qa_engine import query_legal_doc
 
 def full_pipeline_test(pdf_path, test_question):
-    print("🔍 Step 1: Extracting text from PDF...")
+    print("Step 1: Extracting text from PDF...")
     pages = extract_text_from_pdf(pdf_path)
-    print(f"✅ Extracted {len(pages)} pages.")
+    print(f"Extracted {len(pages)} pages.")
 
-    print("📚 Step 2: Chunking document...")
+    print("Step 2: Chunking document...")
     chunks = chunk_text(pages)
-    print(f"✅ Created {len(chunks)} chunks.")
+    print(f"Created {len(chunks)} chunks.")
 
-    print("💾 Step 3: Embedding and storing in FAISS...")
+    print("Step 3: Embedding and storing in FAISS...")
     embed_and_store(chunks)
-    print("✅ Vectorstore saved.")
+    print("Vectorstore saved.")
 
-    print("🤖 Step 4: Asking your question...")
+    print("Step 4: Asking your question...")
     answer = query_legal_doc(test_question)
     print("\n🔎 Question:", test_question)
-    print("🧠 Answer:", answer)
+    print("Answer:", answer)
 
 
 if __name__ == "__main__":
