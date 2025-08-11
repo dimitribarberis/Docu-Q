@@ -1,5 +1,5 @@
 # Docu Q
-DocuQ is a lightweight GenAI-powered app that lets you upload utility bills (PDFs) and ask natural language questions like "What was my total electricity usage in April?"
+DocuQ is a lightweight GenAI-powered app that lets you upload PDFs and ask natural language questions.
 
 ## Features
 - PDF parsing and chunking
@@ -22,10 +22,10 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
-4. Upload a utility bill PDF and ask a question!
+4. Upload PDFs and ask a question!
 
 ## Model Options
-- Local: [Mistral](https://ollama.com/library/mistral)
+- Local: phi3
 - Optional: OpenAI GPT-3.5 (low cost)
 
 ## License
