@@ -5,7 +5,7 @@ from rag.embedder import load_vectorstore
 llm = Ollama(model="phi3")
 
 template = """
-You are a helpful assistant specialized in understanding legal documents.
+You are a helpful assistant specialized in understanding documents and answering questions about them.
 Answer the question below using ONLY the provided context.
 
 If the answer isn't in the context, say "I don't know".
@@ -21,7 +21,7 @@ prompt = PromptTemplate.from_template(template)
 
 def query_legal_doc(question, k=4):
     """
-    Query the legal document using the question and return the answer and source documents.
+    Query the document using the question and return the answer and source documents.
     """
     # Load the vectorstore
     vectorstore = load_vectorstore()
